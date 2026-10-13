@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word Steps | 영어 단어 암기</title>
+<style>
+:root{--ink:#20283a;--muted:#68738a;--line:#e3e8f1;--paper:#f5f7fb;--blue:#4568e8;--bluebg:#edf1ff;--green:#16845b;--greenbg:#e6f7ef;--red:#b83b4b;--redbg:#fff0f1;--gold:#fff5dd}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer;border:0;border-radius:11px;padding:11px 15px;font-weight:700}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:3px solid #a9b7ff;outline-offset:2px}
+.app{max-width:960px;margin:auto;padding:22px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{background:var(--blue);color:white;border-radius:13px;padding:10px 14px;font-weight:900}
+.brand h1{margin:0;font-size:22px}
+.brand p{margin:0;color:var(--muted);font-size:13px}
+.pill,.badge{background:var(--bluebg);color:#3553c8;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800}
+.hero{background:linear-gradient(120deg,#283f99,#5875f1);color:white;padding:25px;border-radius:20px;margin-bottom:18px}
+.hero h2{margin:0 0 6px;font-size:clamp(22px,4vw,30px)}
+.hero p{margin:0;color:#e8edff}
+.progress{display:flex;gap:10px;align-items:center;margin-top:18px;max-width:600px;font-size:12px}
+.track{height:8px;background:#ffffff55;border-radius:20px;flex:1;overflow:hidden}
+.track span{display:block;height:100%;background:white;width:0;transition:.2s}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.tab{background:white;border:1px solid var(--line);text-align:left;color:var(--muted);padding:13px}
+.tab strong,.tab small{display:block}
+.tab small{font-weight:500;margin-top:3px}
+.tab.active{background:var(--bluebg);border-color:#b7c4ff;color:#304fc5}
+.tab.done:before{content:"✓ ";color:var(--green)}
+main{background:white;border:1px solid var(--line);border-radius:19px;padding:clamp(17px,4vw,28px);box-shadow:0 7px 25px #25345b08}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:20px}
+.eyebrow{color:var(--blue);font-size:12px;font-weight:800;letter-spacing:.08em}
+.head h2{margin:3px 0;font-size:24px}
+.sub,.muted{color:var(--muted);font-size:14px;margin:0}
+.card{border:1px solid var(--line);border-radius:16px;padding:22px;background:linear-gradient(135deg,#fff,#f9faff)}
+.word{font-size:clamp(32px,6vw,43px);font-weight:850;line-height:1.2}
+.pos{display:inline-block;margin-top:8px;background:var(--bluebg);color:#4359b4;border-radius:7px;padding:4px 9px;font-size:12px;font-weight:800}
+.meaning{font-size:22px;font-weight:750;margin:15px 0 9px}
+.example,.note{background:#f2f4fa;border-radius:11px;padding:12px 14px;font-size:14px}
+.example b{color:#3457d4}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.note{background:#f7f8fc;border:1px solid #edf0f7}
+.note strong{display:block;font-size:13px;margin-bottom:4px}
+.note p{margin:0;color:#59647a;font-size:13px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-top:18px}
+.primary{background:var(--blue);color:white}
+.secondary{background:#eef1f7;color:#37445e}
+.ghost{background:white;border:1px solid var(--line);color:var(--muted)}
+.quizcard{border:1px solid var(--line);border-radius:14px;padding:18px}
+.quizcard h3{font-size:16px;margin:0 0 12px}
+.choices{display:grid;gap:9px}
+.choice{width:100%;text-align:left;background:#f7f8fc;border:1px solid var(--line);color:var(--ink)}
+.choice:hover:not(:disabled){border-color:#aebcff;background:var(--bluebg)}
+.choice.correct{background:var(--greenbg);border-color:#86d7b3;color:var(--green)}
+.choice.wrong{background:var(--redbg);border-color:#f2a6ad;color:var(--red)}
+.field{width:100%;border:1px solid #d8deeb;border-radius:11px;padding:12px;background:white;color:var(--ink)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.hint{display:none;margin-top:10px;background:var(--gold);color:#755016;border-radius:10px;padding:11px;font-size:13px}
+.hint.show{display:block}
+.feedback{display:none;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:14px}
+.feedback.show{display:block}
+.good{background:var(--greenbg);color:var(--green)}
+.bad{background:var(--redbg);color:var(--red)}
+.question{padding:17px;border:1px solid var(--line);border-radius:14px;margin-bottom:12px}
+.qnum{color:var(--blue);font-size:12px;font-weight:800}
+.sentence{font-size:17px;margin:7px 0 13px}
+.blank{display:inline-block;min-width:90px;border-bottom:2px solid #6579eb;text-align:center;font-weight:800;color:#3455d5}
+.summary{display:flex;justify-content:space-between;gap:12px;align-items:center;background:#f2f5ff;padding:16px;border-radius:13px;margin-bottom:16px}
+.summary strong{font-size:24px;color:#3455d5}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+@media(max-width:620px){
+.app{padding:14px 10px 30px}
+.tabs{gap:5px}.tab{padding:10px 7px}
+.tab strong{font-size:13px}.tab small{font-size:11px}
+.notes{grid-template-columns:1fr}
+.head{flex-direction:column}.row{flex-wrap:wrap}
+.summary{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+<div class="brand"><div class="logo">W</div><div><h1>Word Steps</h1><p>고등학교 1학년 · 기초 어휘 학습</p></div></div>
+<div class="pill">20 WORDS · 3 STEPS</div>
+</header>
+
+<section class="hero">
+<h2>단어를 이해하고, 기억하고, 사용하기</h2>
+<p>단어의 구성 요소를 살펴본 뒤 뜻을 떠올리고, 문장 속에서 직접 사용해 보세요.</p>
+<div class="progress"><div class="track"><span id="bar"></span></div><span id="pct">학습 진행 33%</span></div>
+</section>
+
+<nav class="tabs" aria-label="학습 단계">
+<button class="tab active" data-step="1"><strong>01 단어 익히기</strong><small>뜻 · 품사 · 어근</small></button>
+<button class="tab" data-step="2"><strong>02 뜻 확인하기</strong><small>객관식 · 직접 입력</small></button>
+<button class="tab" data-step="3"><strong>03 문장 완성하기</strong><small>보기 선택 10문제</small></button>
+</nav>
+
+<main id="main"></main>
+<p class="footer">브라우저에서 바로 실행됩니다. 학습 기록은 현재 페이지에만 유지됩니다.</p>
+</div>
+
+<script>
+const words=[
+{w:'ability',p:'명사 (n.)',m:'능력, 재능',e:'She has the ability to solve problems.',ko:'그녀는 문제를 해결할 능력이 있다.',parts:'able(할 수 있는) + -ity(명사형 접미사)',hint:'-ity는 성질이나 상태를 나타내는 명사를 만드는 접미사예요.',tip:'able(할 수 있는)과 연결해서 기억하세요.'},
+{w:'active',p:'형용사 (adj.)',m:'활동적인, 적극적인',e:'My grandfather is still very active.',ko:'우리 할아버지는 여전히 매우 활동적이시다.',parts:'act(행동하다) + -ive(…의 성질을 가진)',hint:'act는 행동하다라는 뜻이고 -ive는 형용사를 만드는 데 자주 쓰여요.',tip:'activity(활동), action(행동)과 같은 어근이에요.'},
+{w:'careful',p:'형용사 (adj.)',m:'주의 깊은, 조심하는',e:'Be careful when you cross the street.',ko:'길을 건널 때 조심해.',parts:'care(주의) + -ful(…이 가득한)',hint:'-ful은 “…이 가득한”이라는 뜻을 더해요.',tip:'반대말은 careless(부주의한)예요.'},
+{w:'careless',p:'형용사 (adj.)',m:'부주의한',e:'A careless mistake changed the answer.',ko:'부주의한 실수가 답을 바꾸었다.',parts:'care(주의) + -less(…이 없는)',hint:'-less는 “…이 없는”이라는 뜻을 더해요.',tip:'hopeful과 hopeless도 비교해 보세요.'},
+{w:'comfortable',p:'형용사 (adj.)',m:'편안한',e:'This chair is comfortable to sit on.',ko:'이 의자는 앉기에 편안하다.',parts:'comfort(편안함) + -able(…할 수 있는)',hint:'-able은 “…할 수 있는”, “…하기에 알맞은”이라는 뜻이에요.',tip:'comfort(편안함, 위로)에서 나온 단어예요.'},
+{w:'dangerous',p:'형용사 (adj.)',m:'위험한',e:'It is dangerous to swim here.',ko:'이곳에서 수영하는 것은 위험하다.',parts:'danger(위험) + -ous(…의 성질을 가진)',hint:'-ous는 성질을 나타내는 형용사 접미사예요.',tip:'famous(유명한), nervous(긴장한)도 -ous로 끝나요.'},
+{w:'decide',p:'동사 (v.)',m:'결정하다',e:'We need to decide what to do next.',ko:'우리는 다음에 무엇을 할지 결정해야 한다.',parts:'decision(결정)과 같은 어휘군',hint:'구성 요소만으로 뜻을 추측하기 어려우므로 decide 전체를 “결정하다”로 익혀요.',tip:'decision은 decide의 명사형이에요.'},
+{w:'different',p:'형용사 (adj.)',m:'다른, 서로 다른',e:'The two pictures look different.',ko:'두 그림은 달라 보인다.',parts:'differ(다르다) + -ent(형용사형 어미)',hint:'differ는 “다르다”라는 뜻이에요.',tip:'difference(차이)와 함께 외우세요.'},
+{w:'enjoy',p:'동사 (v.)',m:'즐기다',e:'I enjoy reading books after school.',ko:'나는 방과 후에 책 읽는 것을 즐긴다.',parts:'joy(기쁨)와 의미 연결',hint:'joy는 “기쁨”이라는 뜻이에요. enjoy는 단어 전체로 익혀요.',tip:'enjoy 뒤에는 동명사(-ing)가 자주 와요: enjoy reading.'},
+{w:'friendly',p:'형용사 (adj.)',m:'친절한, 다정한',e:'Our new teacher is friendly to everyone.',ko:'우리 새 선생님은 모두에게 친절하다.',parts:'friend(친구) + -ly(…의 성질을 가진)',hint:'-ly는 보통 부사를 만들지만 friendly처럼 형용사를 만들기도 해요.',tip:'friendly는 형용사라는 점에 주의하세요.'},
+{w:'helpful',p:'형용사 (adj.)',m:'도움이 되는, 유익한',e:'Your advice was very helpful.',ko:'네 조언은 매우 도움이 되었다.',parts:'help(돕다) + -ful(…이 가득한)',hint:'help에 -ful이 붙어 “도움이 되는”이라는 뜻이 돼요.',tip:'helpful advice는 “도움이 되는 조언”이에요.'},
+{w:'impossible',p:'형용사 (adj.)',m:'불가능한',e:'It is impossible to finish everything in one minute.',ko:'1분 안에 모든 것을 끝내는 것은 불가능하다.',parts:'im-(아닌, 반대) + possible(가능한)',hint:'im-은 일부 단어에서 반대 의미를 만들어요.',tip:'possible(가능한)과 impossible(불가능한)을 짝으로 기억하세요.'},
+{w:'important',p:'형용사 (adj.)',m:'중요한',e:'Sleep is important for your health.',ko:'수면은 건강에 중요하다.',parts:'important는 “중요한”이라는 뜻의 형용사',hint:'단어 구성만 억지로 나누기보다 문장과 함께 익히세요.',tip:'important for ~는 “~에 중요하다”라는 표현이에요.'},
+{w:'information',p:'명사 (n.)',m:'정보',e:'You can find more information online.',ko:'온라인에서 더 많은 정보를 찾을 수 있다.',parts:'inform(알리다) + -ation(명사형 접미사)',hint:'-ation은 행동이나 결과를 나타내는 명사를 만들어요.',tip:'information은 보통 셀 수 없는 명사예요: some information.'},
+{w:'kindness',p:'명사 (n.)',m:'친절, 다정함',e:'Thank you for your kindness.',ko:'친절하게 대해 주셔서 감사합니다.',parts:'kind(친절한) + -ness(성질·상태)',hint:'-ness는 형용사를 명사로 바꾸어 성질이나 상태를 나타내요.',tip:'kind(친절한) → kindness(친절)로 연결하세요.'},
+{w:'possible',p:'형용사 (adj.)',m:'가능한',e:'Is it possible to meet tomorrow?',ko:'내일 만나는 것이 가능할까?',parts:'possible은 “가능한”이라는 뜻의 형용사',hint:'-ible은 일부 형용사에서 “…할 수 있는”이라는 의미를 나타내요.',tip:'possible과 impossible은 반대말이에요.'},
+{w:'prepare',p:'동사 (v.)',m:'준비하다',e:'We should prepare for the test.',ko:'우리는 시험을 준비해야 한다.',parts:'prepare for(…을 준비하다)',hint:'pre-는 “미리, 앞서”라는 뜻으로 쓰이는 경우가 있어요.',tip:'preview(미리 보기), prepay(선불하다)와 연결해 보세요.'},
+{w:'reusable',p:'형용사 (adj.)',m:'재사용할 수 있는',e:'Please bring a reusable water bottle.',ko:'재사용할 수 있는 물병을 가져오세요.',parts:'re-(다시) + use(사용하다) + -able(…할 수 있는)',hint:'re-는 “다시”, -able은 “…할 수 있는”이라는 뜻이에요.',tip:'reuse(재사용하다) + able로 나누어 보세요.'},
+{w:'unhappy',p:'형용사 (adj.)',m:'불행한, 기분이 좋지 않은',e:'He felt unhappy about the result.',ko:'그는 그 결과에 기분이 좋지 않았다.',parts:'un-(아닌, 반대) + happy(행복한)',hint:'un-은 형용사 앞에서 반대 의미를 만들 수 있어요.',tip:'happy와 unhappy를 비교하세요.'},
+{w:'useful',p:'형용사 (adj.)',m:'유용한, 쓸모 있는',e:'This website is useful for learning English.',ko:'이 웹사이트는 영어 학습에 유용하다.',parts:'use(사용하다) + -ful(…이 가득한)',hint:'use에 -ful이 붙어 “쓸모가 있는”이라는 뜻이 돼요.',tip:'useless는 “쓸모없는”이라는 반대 의미예요.'}
+];
+
+const qs=[
+{s:'She has the ____ to solve difficult problems.',a:'ability',options:['ability','activity','danger','kindness'],ko:'그녀는 어려운 문제를 해결할 능력이 있다.',h:'able(할 수 있는) + -ity(명사형 접미사)'},
+{s:'Please be ____ when you cross the street.',a:'careful',options:['careless','comfortable','careful','friendly'],ko:'길을 건널 때 조심하세요.',h:'care(주의) + -ful(…이 가득한)'},
+{s:'The two pictures look completely ____.',a:'different',options:['important','different','active','possible'],ko:'두 그림은 완전히 달라 보인다.',h:'differ(다르다) + -ent'},
+{s:'It is ____ to see every star clearly on a cloudy night.',a:'impossible',options:['useful','comfortable','possible','impossible'],ko:'흐린 밤에 모든 별을 선명하게 보는 것은 불가능하다.',h:'im-(아닌) + possible(가능한)'},
+{s:'You can find more ____ about the school online.',a:'information',options:['information','kindness','ability','decision'],ko:'학교에 관한 더 많은 정보를 온라인에서 찾을 수 있다.',h:'inform(알리다) + -ation(명사형 접미사)'},
+{s:'Our new teacher is ____ and kind to everyone.',a:'friendly',options:['dangerous','friendly','careless','unhappy'],ko:'우리 새 선생님은 모두에게 친절하고 다정하다.',h:'friend(친구) + -ly'},
+{s:'We should ____ for the test before Friday.',a:'prepare',options:['enjoy','decide','prepare','reuse'],ko:'우리는 금요일 전에 시험을 준비해야 한다.',h:'prepare for(…을 준비하다)'},
+{s:'A ____ bottle can be used many times.',a:'reusable',options:['dangerous','reusable','impossible','active'],ko:'재사용 가능한 병은 여러 번 사용할 수 있다.',h:'re-(다시) + use(사용하다) + -able'},
+{s:'Your advice was clear and very ____.',a:'helpful',options:['helpful','careless','unhappy','different'],ko:'네 조언은 명확했고 매우 도움이 되었다.',h:'help(돕다) + -ful'},
+{s:'Small acts of ____ can make someone’s day better.',a:'kindness',options:['kindness','information','ability','danger'],ko:'작은 친절한 행동이 누군가의 하루를 더 좋게 만들 수 있다.',h:'kind(친절한) + -ness(성질·상태)'}
+];
+
+let step=1,wi=0,qi=0,choiceResults={},inputResults={};
+let answers=Array(10).fill(''),checked=false,hints=[];
+const $=id=>document.getElementById(id);
+
+function progress(){
+ const n=step===1?33:step===2?66:100;
+ $('bar').style.width=n+'%';
+ $('pct').textContent='학습 진행 '+n+'%';
+ document.querySelectorAll('.tab').forEach(b=>{
+  const s=+b.dataset.step;
+  b.classList.toggle('active',s===step);
+  b.classList.toggle('done',s<step);
+ });
+}
+function go(n){
+ step=n;progress();render();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(+b.dataset.step));
+function head(k,title,desc,badge){
+ return `<div class="head"><div><div class="eyebrow">${k}</div><h2>${title}</h2><p class="sub">${desc}</p></div><span class="badge">${badge}</span></div>`;
+}
+function render(){
+ progress();
+ if(step===1)learn();
+ if(step===2)quiz();
+ if(step===3)sentences();
+}
+function learn(){
+ const x=words[wi];
+ $('main').innerHTML=head('STEP 01 · LEARN','단어 익히기','뜻과 품사를 확인하고 단어 구성 요소를 살펴보세요.',`${wi+1} / 20`)+
+ `<section class="card">
+ <div class="word">${x.w}</div><span class="pos">${x.p}</span>
+ <div class="meaning">${x.m}</div>
+ <div class="example"><b>${x.e}</b><div id="translation" style="display:none;margin-top:6px;color:#657087">${x.ko}</div></div>
+ <div class="controls"><button class="ghost" id="trans">예문 해석 보기</button></div>
+ <div class="notes">
+ <div class="note"><strong>🔎 단어 구성</strong><p>${x.parts}</p></div>
+ <div class="note"><strong>💡 기억 팁</strong><p>${x.tip}</p></div>
+ </div></section>
+ <div class="row"><button class="secondary" id="prev" ${wi===0?'disabled':''}>← 이전 단어</button>
+ <span class="muted">단어를 소리 내어 읽어 보세요.</span>
+ <button class="primary" id="next">${wi===19?'뜻 확인 단계로 →':'다음 단어 →'}</button></div>`;
+
+ $('trans').onclick=()=>{
+  const t=$('translation');
+  t.style.display=t.style.display==='none'?'block':'none';
+  $('trans').textContent=t.style.display==='none'?'예문 해석 보기':'해석 숨기기';
+ };
+ $('prev').onclick=()=>{wi--;learn()};
+ $('next').onclick=()=>wi<19?(wi++,learn()):go(2);
+}
+
+function quiz(){
+ const x=words[qi];
+
+ // 배열 순서 기준으로 유형을 고정한다.
+ // qi는 0부터 시작하므로 qi=0,2,4...는 홀수 번째 단어다.
+ const mode=qi%2===0?'choice':'input';
+ const cr=choiceResults[qi],ir=inputResults[qi];
+
+ let body;
+ if(mode==='choice'){
+  // 객관식 보기는 해당 단어의 뜻과 다른 단어의 뜻 3개로 구성한다.
+  const options=[x.m,...words.filter((w,i)=>i!==qi).slice(0,3).map(w=>w.m)];
+  body=`<h3>① 알맞은 뜻을 선택하세요</h3>
+  <div class="word" style="font-size:30px;margin-bottom:14px">${x.w}</div>
+  <div class="choices">${options.map(o=>`<button class="choice" data-o="${o}" ${cr!==undefined?'disabled':''}>${o}</button>`).join('')}</div>
+  <div id="feedback" class="feedback"></div>`;
+ }else{
+  body=`<h3>② 뜻을 직접 입력하세요</h3>
+  <p class="sub" style="margin-bottom:12px">단어의 한국어 뜻을 입력하세요.</p>
+  <input class="field" id="mi" placeholder="한국어 뜻 입력" value="${ir?esc(ir.value):''}" ${ir?'disabled':''}>
+  <div class="controls"><button class="primary" id="check" ${ir?'disabled':''}>정답 확인</button></div>
+  <div id="feedback" class="feedback ${ir?'show '+(ir.ok?'good':'bad'):''}">${ir?(ir.ok?'정답이에요!':'정답: '+x.m):''}</div>`;
+ }
+
+ $('main').innerHTML=head('STEP 02 · RECALL','뜻 확인하기',
+ `홀수 번째 단어는 객관식, 짝수 번째 단어는 직접 입력 방식입니다.`,`${qi+1} / 20`)+
+ `<section class="quizcard">${body}
+ <div class="controls"><button class="secondary" id="hint">어근·접사 힌트</button></div>
+ <div id="hintbox" class="hint">${x.hint}</div></section>
+ <div class="row">
+ <button class="secondary" id="back" ${qi===0?'disabled':''}>← 이전 단어</button>
+ <span class="muted">${mode==='choice'?'객관식':'직접 입력'} · ${qi+1}번째 단어</span>
+ <button class="primary" id="nextq">${qi===19?'문장 완성 단계로 →':'다음 단어 →'}</button>
+ </div>
+ <div class="row"><span class="muted">맞힌 문제: ${Object.values(choiceResults).filter(v=>v.ok).length+Object.values(inputResults).filter(v=>v.ok).length} / 20</span>
+ <button class="ghost" id="reset">이 단계 다시 시작</button></div>`;
+
+ if(mode==='choice'){
+  if(cr!==undefined){
+   document.querySelectorAll('.choice').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.o===x.m)b.classList.add('correct');
+    if(!cr.ok&&b.dataset.o===cr.selected)b.classList.add('wrong');
+   });
+   feedback(cr.ok?'정답이에요!':'아쉬워요. 정답: '+x.m,cr.ok);
+  }
+
+  document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{
+   if(choiceResults[qi]!==undefined)return;
+   const ok=b.dataset.o===x.m;
+   choiceResults[qi]={ok,selected:b.dataset.o};
+   document.querySelectorAll('.choice').forEach(c=>{
+    c.disabled=true;
+    if(c.dataset.o===x.m)c.classList.add('correct');
+    if(c===b&&!ok)c.classList.add('wrong');
+   });
+   feedback(ok?'정답이에요!':'아쉬워요. 정답: '+x.m,ok);
+  });
+ }else{
+  if(ir)feedback(ir.ok?'정답이에요!':'정답: '+x.m,ir.ok);
+
+  const checkInput=()=>{
+   const v=$('mi').value.trim();
+   if(!v){$('mi').focus();return}
+   const accepted=x.m.split(/[，,]/).map(s=>s.trim().replace(/\s/g,''));
+   const typed=v.replace(/\s/g,'');
+   const ok=accepted.some(a=>typed===a||typed.includes(a)||a.includes(typed))&&typed.length>0;
+   inputResults[qi]={value:v,ok};
+   $('mi').disabled=true;
+   $('check').disabled=true;
+   feedback(ok?'정답이에요!':'정답: '+x.m,ok);
+  };
+  $('check').onclick=checkInput;
+  $('mi').addEventListener('keydown',e=>{if(e.key==='Enter')checkInput()});
+ }
+
+ $('hint').onclick=()=>$('hintbox').classList.toggle('show');
+ $('back').onclick=()=>{qi--;quiz()};
+ $('nextq').onclick=()=>qi<19?(qi++,quiz()):go(3);
+ $('reset').onclick=()=>{
+  if(confirm('2단계 기록을 초기화할까요?')){
+   choiceResults={};inputResults={};qi=0;quiz();
+  }
+ };
+ function feedback(text,ok){
+  const f=$('feedback');
+  f.className='feedback show '+(ok?'good':'bad');
+  f.textContent=text;
+ }
+}
+
+function sentences(){
+ const score=qs.reduce((n,q,i)=>n+(answers[i]===q.a?1:0),0);
+ $('main').innerHTML=head('STEP 03 · IN CONTEXT','문장 완성하기',
+ '각 문장을 읽고 보기 4개 중 빈칸에 알맞은 단어를 선택하세요. 전체 채점 후 해석을 확인할 수 있습니다.',
+ '10 QUESTIONS')+
+ `<div class="summary"><div><div class="eyebrow">YOUR RESULT</div><div>현재 채점 결과</div></div><strong>${checked?score+' / 10':'아직 채점 전'}</strong></div>`+
+ qs.map((q,i)=>`<section class="question">
+ <div class="qnum">QUESTION ${String(i+1).padStart(2,'0')}</div>
+ <div class="sentence">${q.s.replace('____',`<span class="blank">${answers[i]?esc(answers[i]):'______'}</span>`)}</div>
+ <div class="choices">${q.options.map(o=>`<button class="choice ${checked&&o===q.a?'correct':''} ${checked&&answers[i]===o&&o!==q.a?'wrong':''}" data-q="${i}" data-o="${o}" ${checked?'disabled':''}>${o}</button>`).join('')}</div>
+ <div class="controls"><button class="secondary hintq" data-i="${i}" ${checked?'disabled':''}>힌트</button></div>
+ <div class="hint ${hints[i]?'show':''}" id="h${i}">${q.h}</div>
+ <div class="feedback ${checked?'show '+(answers[i]===q.a?'good':'bad'):''}">${checked?(answers[i]===q.a?'정답! ':'정답: '+q.a+' · ')+q.ko:''}</div>
+ </section>`).join('')+
+ `<div class="row"><button class="secondary" id="toquiz">← 2단계로</button>
+ <button class="primary" id="grade" ${checked?'disabled':''}>전체 채점하기</button>
+ <button class="ghost" id="again">다시 풀기</button></div>`+
+ (checked?`<div class="feedback show ${score===10?'good':'bad'}">${score===10?'완벽해요! 문맥 속에서 단어를 잘 활용했어요.':`총 ${score}문제를 맞혔어요. 정답과 해석을 확인하고 다시 도전해 보세요.`}</div>`:'');
+
+ document.querySelectorAll('.choice[data-q]').forEach(b=>b.onclick=()=>{
+  if(!checked){const i=+b.dataset.q;answers[i]=b.dataset.o;sentences()}
+ });
+ document.querySelectorAll('.hintq').forEach(b=>b.onclick=()=>{
+  const i=+b.dataset.i;hints[i]=!hints[i];$('h'+i).classList.toggle('show',hints[i]);
+ });
+ $('toquiz').onclick=()=>go(2);
+ $('grade').onclick=()=>{checked=true;sentences()};
+ $('again').onclick=()=>{answers=Array(10).fill('');checked=false;hints=[];sentences()};
+}
+function esc(s){
+ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+render();
+</script>
+</body>
+</html>
